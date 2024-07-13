@@ -231,6 +231,7 @@ public class ServiceMatMaterial implements IService {
 	private static CacheData<TaMatMaterial> 		cache_entity= new CacheData<TaMatMaterial>		(500, DefTime.TIME_24_00_00_000 );
 	public static TaMatMaterial reqGet(Integer entId, Boolean forced) throws Exception{
 		String 			key		= entId+"";
+		// attempts to retrieve the entity from the cache
 		TaMatMaterial 		ent 	= cache_entity.reqData(key);	
 		
 		if (forced || ent == null) {
@@ -339,6 +340,7 @@ public class ServiceMatMaterial implements IService {
 		}
 	};
 	private static void doLstDyn(TaAutUser user,  JSONObject json, HttpServletResponse response) throws Exception {	
+	    // Retrieves options for a data table request, including search keys.
 		Object[]  			dataTableOption = ToolDatatable.reqDataTableOption (json, null);
 		Set<String>			searchKey		= (Set<String>)dataTableOption[0];
 		Set<Integer>		stat01			= ToolData.reqSetInt	(json, "stat01"	, null);
@@ -607,27 +609,36 @@ public class ServiceMatMaterial implements IService {
 	}
 
 	private static TaMatMaterial reqMod(TaAutUser user,  JSONObject json, boolean wAuths) throws Exception {
+		// Extract a nested JSONObject from the input json object using the key "obj".
+	    // If "obj" is not found, return null.
 		JSONObject			obj		= ToolData.reqJson 	(json	, "obj"	, null);
 		int 				entId 	= ToolData.reqInt	(obj	, "id"	, -1);
 		TaMatMaterial 			ent 	= TaMatMaterial.DAO.reqEntityByRef(entId);
 		if (ent==null){
 			return null;
 		}
+	    // Check if the user has the right permissions to work with the object (ent).
 		if (!canWorkWithObj(user, WORK_MOD, ent)){ //other param after obj...
 			return null;
 		}
-		Map<String, Object> attr 	= API.reqMapParamsByClass(obj, TaMatMaterial.class);			
+		Map<String, Object> attr 	= API.reqMapParamsByClass(obj, TaMatMaterial.class);
+		
+		// Remove specific attributes from the map to prevent modification of these fields.
 		attr.remove(TaMatMaterial.ATT_I_ID);
 		attr.remove(TaMatMaterial.ATT_D_DATE_01);
 		attr.remove(TaMatMaterial.ATT_I_AUT_USER_01);
+
 		if (!user.canBeSuperAdmin()) {
 			attr.remove(TaMatMaterial.ATT_I_PER_MANAGER);
 		}
 		attr.put(TaMatMaterial.ATT_D_DATE_02		, new Date());
 		attr.put(TaMatMaterial.ATT_I_AUT_USER_02	, user.reqId());
 		String pass = (String) attr.get(TaAutUser.ATT_T_PASS_01);
+		
 		if (pass==null|| pass.length()==0) attr.remove(TaAutUser.ATT_T_PASS_01);
+	    // Merge the updated attributes into the existing entity in the database.
 		TaMatMaterial.DAO.doMerge(ent, attr);	
+		 // Update the cache with the modified entity.
 		cache_entity.reqPut(entId+"", ent);
 		JSONArray	docs		= (JSONArray) obj.get("files");	
 		
@@ -660,29 +671,35 @@ public class ServiceMatMaterial implements IService {
 	}
 
 	private static boolean canDel(TaAutUser user,  JSONObject json) throws Exception {
-		Integer 	entId	= ToolData.reqInt	(json, "id", null	);	
+		Integer 	entId	= ToolData.reqInt	(json, "id", null	);
+		  // Retrieve a TaMatMaterial entity from the database using the entId.
 		TaMatMaterial  	ent	 	= TaMatMaterial.DAO.reqEntityByRef(entId);
 		if (ent==null){
 			return false;
 		}
 		Integer stat = ent.reqInt(TaMatMaterial.ATT_I_STATUS_01);
+		// STAT_DELETED =10
 		if (stat.equals(TaAutUser.STAT_DELETED)) {
-			
+			// Check if the user has the right permissions to work with the object (ent) for deletion.
+	        // If not, return false.
 			if (!canWorkWithObj(user, WORK_DEL, ent)){ //other param after ent...
 				return false;
 			}	
 //			Session sessSub 	= TaTpyDocument	.DAO.reqSessionCurrent();
 			Session sessMain 	= TaAutUser		.DAO.reqSessionCurrent();
 			try {
+	            // Delete the list of documents associated with the entity type and ID in the main session.
 				TaTpyDocument		.doListDel	(sessMain, ENT_TYP, entId);
 //				TaTpyDocument		.doListDel(sessSub, entTyp, entId);
 //				TaAutAuthUser	.doListDel	(sessMain, entId);
 				TaMatMaterial.DAO		.doRemove 	(sessMain, ent);
 				cache_entity.reqDel(entId+"");
+				  // Commit the session changes.
 				TaMatMaterial			.DAO.doSessionCommit(sessMain);
 //				TaTpyDocument		.DAO.doSessionCommit(sessSub);
 			}catch(Exception e){
 				e.printStackTrace();
+				  // Rollback the session changes if an exception occurs and print the stack trace.
 				TaMatMaterial			.DAO.doSessionRollback(sessMain);
 //				TaTpyDocument		.DAO.doSessionRollback(sessSub);
 			}		

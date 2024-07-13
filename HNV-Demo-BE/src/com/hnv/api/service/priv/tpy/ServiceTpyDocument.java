@@ -62,7 +62,6 @@ public class ServiceTpyDocument implements IService  {
 			
 			} else if (sv.equals(SV_DO_NEW) ) {
 				doNew(user, json, response);
-				
 			} else if (sv.equals(SV_DO_DEL) ) {
 				doDel(user, json, response);
 				

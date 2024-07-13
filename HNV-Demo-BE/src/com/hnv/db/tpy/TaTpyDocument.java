@@ -557,9 +557,11 @@ public class TaTpyDocument extends EntityAbstract<TaTpyDocument> {
 	private static final String 	IMG_EXT							= "jpg";
 
 	// 
+	// Define a public static method called reqListCheck that returns a List of TaTpyDocument objects.
 	public static List<TaTpyDocument> reqListCheck (int mode, TaMatMaterial user, Integer entTyp, Integer entID,  JSONArray lstJson) throws Exception {
+		// If the mode is SV_MODE_NEW and the lstJson is null or empty, return null.
 		if (mode==DefAPI.SV_MODE_NEW && (lstJson == null || lstJson.size() == 0)) return null; //add address
-		
+		 // Initialize lists and sets to store documents and their IDs based on their status.
 		List<TaTpyDocument> lstEntDocs = new ArrayList<TaTpyDocument>();
 		Set<Integer> 		docIdsNew 	= new HashSet<Integer>();
 		Set<Integer> 		docIdsDupl 	= new HashSet<Integer>();
@@ -572,7 +574,8 @@ public class TaTpyDocument extends EntityAbstract<TaTpyDocument> {
 														Restrictions.eq(TaTpyDocument.ATT_I_ENTITY_ID	, entID ));
 			docSet		= ToolSet.reqSetInt(lstEntDocs, TaTpyDocument.ATT_I_ID);
 		}
-		
+		// If the mode is SV_MODE_MOD, retrieve the list of documents associated with the entity type and ID,
+		// and populate docSet with the IDs of these documents.
 		if (mode==DefAPI.SV_MODE_MOD && (lstJson==null || lstJson.size()==0)) {
 			if (lstEntDocs!=null&& lstEntDocs.size()>0){
 				for (TaTpyDocument doc: lstEntDocs){
@@ -603,7 +606,8 @@ public class TaTpyDocument extends EntityAbstract<TaTpyDocument> {
 			reqListSaveFromNewToValidated (user, entTyp, entID, docs);
 			allDocs.addAll(docs);
 		}
-
+		 // If there are new document IDs, retrieve the list of new documents,
+	    // validate and save them, and add them to allDocs.
 		if (docIdsDupl.size()>0) {
 			List<TaTpyDocument> docs = TaTpyDocument.DAO.reqList_In(TaTpyDocument.ATT_I_ID, docIdsDupl);
 			for (TaTpyDocument doc: docs){
@@ -623,6 +627,8 @@ public class TaTpyDocument extends EntityAbstract<TaTpyDocument> {
 
 		//???del => dupplicate use the same source, del origin, del duplicate
 		//--add all docSet to docIDDel to del
+		// If there are duplicated document IDs, retrieve the list of duplicated documents,
+	    // update their attributes, persist them as new documents, and add them to allDocs.
 		docIdsDel.addAll(docSet);
 		if (docIdsDel.size()>0) {
 			List<TaTpyDocument> docs 	 = TaTpyDocument.DAO.reqList_In(TaTpyDocument.ATT_I_ID, docIdsDel);
