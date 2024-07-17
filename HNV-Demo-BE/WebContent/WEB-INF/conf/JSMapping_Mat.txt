@@ -58,7 +58,8 @@ ViMatMaterialDyn                 ; I_Type_01                     ; typ01
 ViMatMaterialDyn                 ; I_Type_02                     ; typ02                         
 ViMatMaterialDyn                 ; I_Type_03                     ; typ03                         
 ViMatMaterialDyn                 ; T_Name_01                     ; name01                        
-ViMatMaterialDyn                 ; T_Name_02                     ; name02                        
+ViMatMaterialDyn                 ; T_Name_02                     ; name02       
+ViMatMaterialDyn                 ; O_Documents                   ; files                   
 ViMatMaterialDyn                 ; T_Code_01                     ; code01                        
 ViMatMaterialDyn                 ; T_Code_02                     ; code02                        
 ViMatMaterialDyn                 ; T_Code_03                     ; code03                        

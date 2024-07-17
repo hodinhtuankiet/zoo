@@ -344,7 +344,7 @@ public class ServiceMatMaterial implements IService {
 		Object[]  			dataTableOption = ToolDatatable.reqDataTableOption (json, null);
 		Set<String>			searchKey		= (Set<String>)dataTableOption[0];
 		Set<Integer>		stat01			= ToolData.reqSetInt	(json, "stat01"	, null);
-		
+		Boolean				forced		= ToolData.reqBool	(json, "forced"		, true	);
 //		if(typ01 == null && typ02== null && stats ==null) {
 //			API.doResponse(response,DefAPI.API_MSG_KO);
 //			return;
@@ -357,7 +357,7 @@ public class ServiceMatMaterial implements IService {
 		//-------------------------------------------------------------------
 		Criterion 	cri 				= reqRestriction(user, searchKey, null, stat01);				
 
-		List<ViMatMaterialDyn> list 		= reqListDyn(dataTableOption,cri);
+		List<ViMatMaterialDyn> list 		= reqListDyn(dataTableOption, cri, forced);
 		if (list==null ){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 			return;
@@ -495,7 +495,7 @@ public class ServiceMatMaterial implements IService {
 		return cri;
 	}
 
-	private static List<ViMatMaterialDyn> reqListDyn(Object[] dataTableOption,	Criterion 	cri) throws Exception {		
+	private static List<ViMatMaterialDyn> reqListDyn(Object[] dataTableOption,	Criterion 	cri,Boolean forced) throws Exception {		
 		int begin 		= (int)	dataTableOption[1];
 		int number 		= (int)	dataTableOption[2]; 
 		int sortCol 	= (int)	dataTableOption[3]; 
@@ -522,11 +522,16 @@ public class ServiceMatMaterial implements IService {
 		if (order==null)
 			list	= ViMatMaterialDyn.DAO.reqList(begin, number,cri);
 		else
-			list	= ViMatMaterialDyn.DAO.reqList(begin, number, order,cri);			
-
+			list	= ViMatMaterialDyn.DAO.reqList(begin, number, order,cri);
+		
+		if (list!=null){		
+			for(ViMatMaterialDyn item : list) {
+				item.doBuildDocuments(forced);
+			}
+		}
 		return list;
 	}
-
+	
 	private static Number reqNbNsoPostListDyn() throws Exception {						
 		return ViMatMaterialDyn.DAO.reqCount();		
 	}

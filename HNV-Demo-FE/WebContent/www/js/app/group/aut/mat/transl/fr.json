@@ -30,6 +30,7 @@
 
 "aut_user_ent_name"				:	"Name",
 "aut_user_ent_price"				:	"Price",
+"aut_user_ent_image"				:	"Image",
 "aut_user_ent_person_help"		:	"Choisir l'info",
 
 "aut_user_ent_email"			:	"Email",

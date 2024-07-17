@@ -42,7 +42,7 @@ public class ViMatMaterialDyn extends EntityAbstract<ViMatMaterialDyn> {
 	public static int	TYPE_02_WHOLESALE 	= 3;
 
 	private static final long serialVersionUID = 1L;
-
+	private static final int  ENT_TYP			= DefDBExt.ID_TA_MAT_MATERIAL;
 	//---------------------------List of Column from DB-----------------------------
 	public static final String	COL_I_ID                              =	"I_ID";
 	public static final String	COL_T_CODE_01                         =	"T_Code_01";
@@ -128,7 +128,6 @@ public class ViMatMaterialDyn extends EntityAbstract<ViMatMaterialDyn> {
 	public static final String	ATT_O_MAN_AVATAR                  	  =	"O_Man_Avatar";
 	public static final String	ATT_O_PROD_AVATAR                  	  =	"O_Prod_Avatar";
 
-	
 	//-------every entity class must initialize its DAO from here -----------------------------
 	private 	static 	final boolean[] 			RIGHTS		= {true, false, false, false, false}; //canRead, canAdd, canUpd, canDel, del physique or flag only 
 	
@@ -176,7 +175,8 @@ public class ViMatMaterialDyn extends EntityAbstract<ViMatMaterialDyn> {
 
 	@Column(name=COL_I_PER_MANAGER, nullable = true)
 	private	Integer         I_Per_Manager;
-		
+	@Transient
+	private	List<TaTpyDocument> 		O_Documents;
 	
 	//---------------------Constructeurs-----------------------
 	private ViMatMaterialDyn(){}
@@ -195,6 +195,11 @@ public class ViMatMaterialDyn extends EntityAbstract<ViMatMaterialDyn> {
 	@Override
 	public int hashCode() {
 		return this.I_ID;
+	}
+
+	public void doBuildDocuments(boolean forced) throws Exception {
+		if (this.O_Documents != null && !forced) return;
+		this.O_Documents = TaTpyDocument.reqTpyDocuments(ENT_TYP, I_ID, null, null);
 	}
 	
 }
