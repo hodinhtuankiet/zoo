@@ -117,9 +117,9 @@ define(['text!group/dashboard/tmpl/DBoard_Sidebar.html',
 
 				$("#a_disconnect").off("click").on("click", function () {
 					if (FIRST_VIEW) {
-						App.router.controller.do_lc_run(App.router.routes.LOGOUT_PRJ + '/' + FIRST_VIEW);
+						App.router.controller.do_lc_run(App.router.routes.LOGOUT + '/' + FIRST_VIEW);
 					} else {
-						App.router.controller.do_lc_run(App.router.routes.LOGOUT_PRJ);
+						App.router.controller.do_lc_run(App.router.routes.LOGOUT);
 					}
 				})
 

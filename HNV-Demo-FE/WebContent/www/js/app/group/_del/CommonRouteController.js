@@ -70,17 +70,31 @@ define(['pathparser',
 
             //-------------------------------------------------------------------------------------------------------
 
-            this.router.add(App.router.routes.LOGOUT_PRJ + '/:FIRST_VIEW', function () {
-                if (App) {
-                    App.data            = {};
-                    App.data.session_id = -1;
-                }
+           if (App.router.routes.LOGOUT)
+			this.router.add(App.router.routes.LOGOUT + '/:FIRST_VIEW', function () {
+				if (App) {
+					App.data            = {};
+					App.data.session_id = -1;
+				}
+				let { url } = this;
+				let options = {
+						grpName		: "group", 
+						ctrlName	: "Login",
+						ctrlPath	: "group/login/ctrl/LoginController", 
+						ctrlParams	: [],
+						fInit		: "do_lc_init", 
+						fInitParams	: [],
+						fShow		: "do_lc_show", 
+						fShowParams	: [],
+						fCallBack  		: null,
+						fCallBackParams	: null 
+				}
 
-                let {url, FIRST_VIEW} = this;
-                self.consoleRoute(url);
-                
-                App.controller.common.Login.do_lc_show(FIRST_VIEW);
-            });
+				do_gl_load_JSController_ByRequireJS(App.controller, options);
+				self.do_lc_pushHistory(this.url);
+				
+				self.do_lc_clearHistory();
+			});
 
 
             this.router.add(App.router.routes.ONLOAD_PRJ + '/:FIRST_VIEW', function () {

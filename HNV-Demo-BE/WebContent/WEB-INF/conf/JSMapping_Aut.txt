@@ -11,14 +11,14 @@ TaAutAuthService          		; D_Date_02         ; dt02
 TaAutAuthService          		; I_Type_01         ; typ01	
 TaAutAuthService          		; I_Type_02         ; typ02	
 
-TaAutAuthUser				; I_ID				; id 
-TaAutAuthUser				; I_Status			; stat
-TaAutAuthUser				; I_Aut_User		; uId
-TaAutAuthUser				; I_Aut_Role		; rId
-TaAutAuthUser				; T_Aut_Right		; rights
-TaAutAuthUser				; I_Status			; stat
-TaAutAuthUser          		; D_Date_01        	; dt01
-TaAutAuthUser          		; D_Date_02         ; dt02
+TaAutAuthUser					; I_ID				; id 
+TaAutAuthUser					; I_Status			; stat
+TaAutAuthUser					; I_Aut_User		; uId
+TaAutAuthUser					; I_Aut_Role		; rId
+TaAutAuthUser					; T_Aut_Right		; rights
+TaAutAuthUser					; I_Status			; stat
+TaAutAuthUser          			; D_Date_01        	; dt01
+TaAutAuthUser          			; D_Date_02         ; dt02
 
 ViAutAuthUserDyn				; I_ID				; id
 ViAutAuthUserDyn				; I_Aut_User		; uId
@@ -42,12 +42,12 @@ TaAutRole                 	  	; T_Info_01         	; descr
 TaAutRole                 	  	; T_Info_02         	; grp
 TaAutRole						; I_Status			; stat
 ------------------------------	;-------------------;-----------------------------------
-ViAutRoleDyn						; I_ID				; id
-ViAutRoleDyn						; T_Name			; name
-ViAutRoleDyn						; T_Aut_Right		; rights
-ViAutRoleDyn                 	  	; T_Info_01         ; descr
-ViAutRoleDyn                 	  	; T_Info_02         ; grp
-ViAutRoleDyn						; I_Status			; stat
+ViAutRoleDyn					; I_ID				; id
+ViAutRoleDyn					; T_Name			; name
+ViAutRoleDyn					; T_Aut_Right		; rights
+ViAutRoleDyn                 	; T_Info_01         ; descr
+ViAutRoleDyn                 	; T_Info_02         ; grp
+ViAutRoleDyn					; I_Status			; stat
 ------------------------------	;-------------------;-----------------------------------
 TaAutHistory              		; I_ID              ; id                            
 TaAutHistory              		; I_User            ; uId                          
@@ -68,7 +68,7 @@ TaAutUser                     	; I_Type_02         ; typ02
 TaAutUser                 	  	; T_Info_01         ; email
 TaAutUser                 	  	; T_Info_02         ; inf02
 TaAutUser                 	  	; T_Info_03         ; cost
-TaAutUser                 	  	; T_Info_04         ; cats
+TaAutUser                 	  	; T_Info_04         ; cast
 TaAutUser                 	  	; T_Info_05         ; times    
 TaAutUser                 	  	; T_Info_06         ; inf06
 TaAutUser                 	  	; T_Info_07         ; inf07
@@ -140,7 +140,7 @@ ViAutUserMember                     	; I_Type_02         ; typ02
 ViAutUserMember                 	  	; T_Info_01         ; email
 ViAutUserMember                 	  	; T_Info_02         ; inf02
 ViAutUserMember                 	  	; T_Info_03         ; cost
-ViAutUserMember                 	  	; T_Info_04         ; cats
+ViAutUserMember                 	  	; T_Info_04         ; cast
 ViAutUserMember                 	  	; T_Info_05         ; times    
 ViAutUserMember                 	  	; T_Info_06         ; inf06
 ViAutUserMember                 	  	; T_Info_07         ; inf07

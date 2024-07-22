@@ -663,8 +663,185 @@ public class TaTpyDocument extends EntityAbstract<TaTpyDocument> {
 		}
 		return allDocs;
 	}
+	public static List<TaTpyDocument> reqListCheckUser (int mode, TaAutUser user, Integer entTyp, Integer entID,  JSONArray lstJson) throws Exception {
+		// If the mode is SV_MODE_NEW and the lstJson is null or empty, return null.
+		if (mode==DefAPI.SV_MODE_NEW && (lstJson == null || lstJson.size() == 0)) return null; //add address
+		 // Initialize lists and sets to store documents and their IDs based on their status.
+		List<TaTpyDocument> lstEntDocs = new ArrayList<TaTpyDocument>();
+		Set<Integer> 		docIdsNew 	= new HashSet<Integer>();
+		Set<Integer> 		docIdsDupl 	= new HashSet<Integer>();
+		Set<Integer> 		docIdsValid	= new HashSet<Integer>();
+		Set<Integer> 		docIdsDel 	= new HashSet<Integer>();
+		Set<Integer>		docSet		= new HashSet<Integer>();
+		
+		if (mode==DefAPI.SV_MODE_MOD) {
+			lstEntDocs 	= TaTpyDocument.DAO.reqList(	Restrictions.eq(TaTpyDocument.ATT_I_ENTITY_TYPE	, entTyp), 
+														Restrictions.eq(TaTpyDocument.ATT_I_ENTITY_ID	, entID ));
+			docSet		= ToolSet.reqSetInt(lstEntDocs, TaTpyDocument.ATT_I_ID);
+		}
+		// If the mode is SV_MODE_MOD, retrieve the list of documents associated with the entity type and ID,
+		// and populate docSet with the IDs of these documents.
+		if (mode==DefAPI.SV_MODE_MOD && (lstJson==null || lstJson.size()==0)) {
+			if (lstEntDocs!=null&& lstEntDocs.size()>0){
+				for (TaTpyDocument doc: lstEntDocs){
+					doc.reqSet(TaTpyDocument.ATT_I_ENTITY_ID	, -1);
+					doc.reqSet(TaTpyDocument.ATT_I_ENTITY_TYPE	, -1);
+				}
+				TaTpyDocument.DAO.doMerge(lstEntDocs);
+			}
+			return null;
+		}
+
+		for (Object d: lstJson){
+			JSONObject 	obj 	= ((JSONObject)d);
+			Integer		id 		= ToolData.reqInt(obj, "id"	 , null);
+			Integer		stat	= ToolData.reqInt(obj, "stat", TaTpyDocument.STAT_NEW);
+			if (id==null) continue;
+			switch(stat) {
+			case TaTpyDocument.STAT_NEW			: docIdsNew	 .add(id); docSet.remove(id); break;
+			case TaTpyDocument.STAT_DUPLICATED	: docIdsDupl .add(id); break;
+			case TaTpyDocument.STAT_VALIDATED	: docIdsValid.add(id); docSet.remove(id); break;
+			case TaTpyDocument.STAT_DELETED		: docIdsDel  .add(id); break;
+			}
+		}
+		List<TaTpyDocument> allDocs  = new ArrayList<TaTpyDocument>();
+
+		if (docIdsNew.size()>0) {
+			List<TaTpyDocument> docs = TaTpyDocument.DAO.reqList_In(TaTpyDocument.ATT_I_ID, docIdsNew, Restrictions.eq(TaTpyDocument.ATT_I_STATUS, TaTpyDocument.STAT_NEW));
+			reqListSaveFromNewToValidatedUser (user, entTyp, entID, docs);
+			allDocs.addAll(docs);
+		}
+		 // If there are new document IDs, retrieve the list of new documents,
+	    // validate and save them, and add them to allDocs.
+		if (docIdsDupl.size()>0) {
+			List<TaTpyDocument> docs = TaTpyDocument.DAO.reqList_In(TaTpyDocument.ATT_I_ID, docIdsDupl);
+			for (TaTpyDocument doc: docs){
+				doc.reqSet(TaTpyDocument.ATT_I_ENTITY_TYPE	, entTyp 	);
+				doc.reqSet(TaTpyDocument.ATT_I_ENTITY_ID	, entID		);
+
+				doc.reqSet(TaTpyDocument.ATT_D_DATE_02		, new Date());
+				doc.reqSet(TaTpyDocument.ATT_I_AUT_USER_02	, user.reqId());
+
+				doc.reqSet(TaTpyDocument.ATT_I_PARENT		, doc.req(TaTpyDocument.ATT_I_ID));
+
+				doc.reqSet(TaTpyDocument.ATT_I_ID			, null		);//---remove id to persist as new line
+			}
+			TaTpyDocument.DAO.doPersist(docs);
+			allDocs.addAll(docs);
+		}
+
+		//???del => dupplicate use the same source, del origin, del duplicate
+		//--add all docSet to docIDDel to del
+		// If there are duplicated document IDs, retrieve the list of duplicated documents,
+	    // update their attributes, persist them as new documents, and add them to allDocs.
+		docIdsDel.addAll(docSet);
+		if (docIdsDel.size()>0) {
+			List<TaTpyDocument> docs 	 = TaTpyDocument.DAO.reqList_In(TaTpyDocument.ATT_I_ID, docIdsDel);
+			for (TaTpyDocument doc: docs){
+//				Integer pId = doc.reqInt(TaTpyDocument.ATT_I_PARENT_ID);
+//				if (pId==null) {
+//					String path02 = doc.reqStr(TaTpyDocument.ATT_T_INFO_02);
+//					if (path02!=null) ToolFile.canDelFile(path02);
+//					String path04 = doc.reqStr(TaTpyDocument.ATT_T_INFO_04);
+//					if (path04!=null) ToolFile.canDelFile(path04);
+//				}
+				doc.reqSet(TaTpyDocument.ATT_I_ENTITY_ID	, -1);
+				doc.reqSet(TaTpyDocument.ATT_I_ENTITY_TYPE	, -1);
+			}
+			TaTpyDocument.DAO.doMerge(docs);
+		}
+		if (lstEntDocs == null) {
+			return lstEntDocs;
+		};
+		//----add old files to list
+		if(lstEntDocs != null) {
+			for (TaTpyDocument doc : lstEntDocs){
+				Integer id = doc.reqId();
+				if (!docIdsDel.contains(id)) allDocs.add(doc);
+			}
+		}
+
+		//----hide real path when return to client
+		for (TaTpyDocument doc: allDocs){
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_02, null);
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_04, null);
+		}
+		return allDocs;
+	}
 
 	public static List<TaTpyDocument> reqListSaveFromNewToValidated(TaMatMaterial user, Integer entTyp, Integer entID, List<TaTpyDocument> docs) throws Exception {
+		String sDate			= ToolDate.reqString(new Date(), "yyMMdd");
+		for (TaTpyDocument doc: docs) {
+			int 	fType01		= doc.reqInt	(TaTpyDocument.ATT_I_TYPE_01);
+			int 	fType02		= doc.reqInt	(TaTpyDocument.ATT_I_TYPE_02);
+			double 	fSize 		= doc.reqDouble	(TaTpyDocument.ATT_F_VAL_01);
+			
+			String 	fName		= doc.reqStr	(TaTpyDocument.ATT_T_INFO_01);
+			String  fExt 		= FilenameUtils.getExtension(fName); 
+			String  fNameNoExt	= FilenameUtils.getBaseName(fName); 
+			
+			String 	fPathTmp	= doc.reqStr	(TaTpyDocument.ATT_T_INFO_10);
+			File 	f			= new File (fPathTmp);
+			String 	fNameTmp	= f.getName();
+			
+
+			String 	newPath		= files_root_dir 	+ F_SEPA + DIR_ORIGIN  + F_SEPA  + entTyp + F_SEPA + entID + F_SEPA + sDate + F_SEPA + fNameTmp;
+			String 	newURL		= files_url_docBase + U_SEPA + DIR_ORIGIN  + U_SEPA  + entTyp + U_SEPA + entID + U_SEPA + sDate + U_SEPA + fNameTmp;
+
+			String 	newPathPrev	= null;
+			String 	newURLPreV	= null;
+
+			try {
+				ToolFile.doMoveFile(fPathTmp, newPath);
+			}catch(Exception e) {
+				if (ToolFile.canDelFile(newPath)) {
+					ToolFile.doMoveFile(fPathTmp, newPath);
+				}
+			}
+
+
+			if (fExt.equals("jpg") || fExt.equals("jpeg") || fExt.equals("png") || fExt.equals("bmp")){// || fileExt.equals("gif")
+				if (fSize>SIZE_MAX_IMG_PREVIEW_FILE) {
+
+					newPathPrev		= files_root_dir 	+ F_SEPA + DIR_PREVIEW + F_SEPA +  user.reqId()  + F_SEPA + entTyp+ F_SEPA + sDate + F_SEPA + fNameTmp+ ".jpg";
+					try {
+						ToolImage.doImgCompress(newPath, newPathPrev, "jpg", 0.5f, SIZE_MAX_IMG_PREVIEW_WH, SIZE_MAX_IMG_PREVIEW_WH);
+					}catch(Exception e) {
+						newPathPrev = null;
+					}
+
+					//--create thumnail preview
+					if (newPathPrev!=null){
+						newURLPreV			= files_url_docBase + U_SEPA + DIR_PREVIEW  + U_SEPA +  user.reqId() + U_SEPA + entTyp+ U_SEPA + sDate + U_SEPA + fNameTmp + ".jpg";
+					}
+				}
+
+			}else if (fExt.equals("webm") || fExt.equals("mp4")){
+				//---do something with compression if need
+			}		
+
+			doc.reqSet(TaTpyDocument.ATT_I_ENTITY_ID	, entID); 
+			doc.reqSet(TaTpyDocument.ATT_I_ENTITY_TYPE	, entTyp); 
+			doc.reqSet(TaTpyDocument.ATT_I_STATUS		, TaTpyDocument.STAT_VALIDATED); 
+
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_02 		, newPath);
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_03 		, newURL);
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_04 		, newPathPrev);
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_05 		, newURLPreV);
+
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_10		, fNameTmp);
+		}
+
+		if (docs.size()>0) TaTpyDocument.DAO.doMerge(docs);
+		
+		for (TaTpyDocument doc : docs) {
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_02 , null); //hide to client
+			doc.reqSet(TaTpyDocument.ATT_T_INFO_04 , null); //hide to client
+		}
+
+		return docs;
+	}
+	public static List<TaTpyDocument> reqListSaveFromNewToValidatedUser(TaAutUser user, Integer entTyp, Integer entID, List<TaTpyDocument> docs) throws Exception {
 		String sDate			= ToolDate.reqString(new Date(), "yyMMdd");
 		for (TaTpyDocument doc: docs) {
 			int 	fType01		= doc.reqInt	(TaTpyDocument.ATT_I_TYPE_01);

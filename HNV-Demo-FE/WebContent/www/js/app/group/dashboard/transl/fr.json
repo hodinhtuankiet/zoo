@@ -8,6 +8,7 @@
 	"sidebar_aut_authSV" 			: "Authentification pour services",
 	"sidebar_aut_user" 				: "Utilisateurs",
 	"sidebar_nso_group"				: "Groupe d'utilisateurs",
+	"sidebar_nso_student"			: "Student",
 	
 	"sidebar_partner_client" 		: "Partenaires",
 	"sidebar_per_person_typ_cli" 	: "Clients",

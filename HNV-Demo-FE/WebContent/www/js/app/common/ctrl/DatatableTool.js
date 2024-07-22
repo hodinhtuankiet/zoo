@@ -555,8 +555,8 @@ function req_gl_Datatable_Ajax_Dyn(div, url, url_header, fileTranslate, colConfi
 									App.data.page[div] = 1;
 								});
 								
-								fnCallback(msg,oTable.fnDraw());
-								
+								fnCallback(msg);
+				//				fnCallback(msg,oTable.fnDraw());
 								if(fCallback) {
 									setTimeout(function(){ fCallback(msg.aaData, div, oTable, param);}, 500);
 								}

@@ -36,7 +36,7 @@ public class ViAutUserDyn extends EntityAbstract<ViAutUserDyn> {
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-
+	private static final int  ENT_TYP			= DefDBExt.ID_TA_AUT_USER;
 //	public static final int 	TYPE_01_ADM_ALL		= 100;
 	public static final int 	TYPE_01_SUP_ADM		= 1;
 	public static final int 	TYPE_01_ADM			= 1;
@@ -165,11 +165,11 @@ public class ViAutUserDyn extends EntityAbstract<ViAutUserDyn> {
 	@Column(name=COL_D_DATE_01, nullable = true)
 	private	Date              D_Date_01;
 
-//	@Column(name=COL_T_INFO_03, nullable = true)
-//	private	String            T_Info_03;
-//
-//	@Column(name=COL_T_INFO_04, nullable = true)
-//	private	String            T_Info_04;
+	@Column(name=COL_T_INFO_03, nullable = true)
+	private	String            T_Info_03;
+
+	@Column(name=COL_T_INFO_04, nullable = true)
+	private	String            T_Info_04;
 //
 //	@Column(name=COL_T_INFO_05, nullable = true)
 //	private	String            T_Info_05;
@@ -194,7 +194,8 @@ public class ViAutUserDyn extends EntityAbstract<ViAutUserDyn> {
 //	
 	@Transient
 	private	ViPerPersonDyn				O_Per_Person;
-
+	@Transient
+	private	List<TaTpyDocument> 		O_Documents;
 	//-----------------------------------------------------------------------
 	private ViAutUserDyn(){}
 
@@ -279,5 +280,9 @@ public class ViAutUserDyn extends EntityAbstract<ViAutUserDyn> {
 				}
 			}
 		}
+	}
+	public void doBuildDocuments(boolean forced) throws Exception {
+		if (this.O_Documents != null && !forced) return;
+		this.O_Documents = TaTpyDocument.reqTpyDocuments(ENT_TYP, I_ID, null, null);
 	}
 }

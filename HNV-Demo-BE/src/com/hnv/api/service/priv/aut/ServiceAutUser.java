@@ -37,6 +37,7 @@ import com.hnv.db.aut.TaAutHistory;
 import com.hnv.db.aut.TaAutUser;
 import com.hnv.db.aut.vi.ViAutUserDyn;
 import com.hnv.db.aut.vi.ViAutUserMember;
+import com.hnv.db.mat.vi.ViMatMaterialDyn;
 import com.hnv.db.per.TaPerPerson;
 import com.hnv.db.sys.TaSysLock;
 import com.hnv.db.tpy.TaTpyDocument;
@@ -248,16 +249,16 @@ public class ServiceAutUser implements IService {
 		//---do build something other of ent like details....
 		if (ent!=null){		
 			ent.doBuildDocuments(forced);
-			ent.doBuildAvatar	(forced);
-			ent.doBuildPerson	(forced);
+//			ent.doBuildAvatar	(forced);
+//			ent.doBuildPerson	(forced);
 			
 //			ent.doBuilAuth		(forced, null);
-			ent.doBuilAuths		(forced);			
-			ent.doBuildManager	(forced);	
-			ent.doBuildSuperior	(forced);
-			ent.doBuildHistoryConnection(forced);
-			
-			ent.doHidePwd();
+//			ent.doBuilAuths		(forced);			
+//			ent.doBuildManager	(forced);	
+//			ent.doBuildSuperior	(forced);
+//			ent.doBuildHistoryConnection(forced);
+//			
+//			ent.doHidePwd();
 		}
 
 		return ent;
@@ -341,8 +342,9 @@ public class ServiceAutUser implements IService {
 	private static void doLstDyn(TaAutUser user,  JSONObject json, HttpServletResponse response) throws Exception {	
 		Object[]  			dataTableOption = ToolDatatable.reqDataTableOption (json, null);
 		Set<String>			searchKey		= (Set<String>)dataTableOption[0];
-		Set<Integer>		stats			= ToolData.reqSetInt	(json, "stats"	, null);
-	
+		Set<Integer>		stats			= ToolData.reqSetInt	(json, "stat01"	, null);
+		Boolean				forced		= ToolData.reqBool	(json, "forced"		, true	);
+
 		
 		
 		if (!canWorkWithObj(user, WORK_LST, null, stats)){ //other param after objTyp...
@@ -352,7 +354,7 @@ public class ServiceAutUser implements IService {
 		//-------------------------------------------------------------------
 		Criterion 	cri 				= reqRestriction(user, searchKey, null, stats);				
 
-		List<ViAutUserDyn> list 		= reqListDyn(dataTableOption, cri);
+		List<ViAutUserDyn> list 		= reqListDyn(dataTableOption, cri,forced);
 		if (list==null ){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 			return;
@@ -479,7 +481,7 @@ public class ServiceAutUser implements IService {
 		//--Pre-Check condition---------------------------------------------------
 		if (stats == null){
 			stats = new HashSet<>() ; 
-			stats.add(ViAutUserDyn.STAT_DELETED);
+			stats.add(1);
 		}
 				
 		Criterion cri = Restrictions.in(ViAutUserDyn.ATT_I_STATUS, stats);
@@ -495,22 +497,19 @@ public class ServiceAutUser implements IService {
 		if (searchKey != null) {
 			for (String s : searchKey){
 				cri = Restrictions.and(	cri, Restrictions.or(
-						Restrictions.ilike(ViAutUserDyn.ATT_T_LOGIN_01, '%'+s+'%'),
-						Restrictions.ilike(ViAutUserDyn.ATT_T_LOGIN_02, '%'+s+'%'),
 						Restrictions.ilike(ViAutUserDyn.ATT_T_INFO_01, '%'+s+'%'),
-						Restrictions.ilike(ViAutUserDyn.ATT_T_INFO_02, '%'+s+'%'), 
-						Restrictions.ilike(ViAutUserDyn.ATT_T_INFO_03, '%'+s+'%')
+						Restrictions.ilike(ViAutUserDyn.ATT_T_LOGIN_01, '%'+s+'%') 
 						)
 				);
 			}
 		}
 		
 //		if (manId==null && !user.canBeSuperAdmin()) manId = user.reqPerManagerId();
-		if (manId!=null) cri = Restrictions.and(cri, Restrictions.eq(ViAutUserDyn.ATT_I_PER_MANAGER, manId));
+//		if (manId!=null) cri = Restrictions.and(cri, Restrictions.eq(ViAutUserDyn.ATT_I_PER_MANAGER, manId));
 		return cri;
 	}
 
-	private static List<ViAutUserDyn> reqListDyn(Object[] dataTableOption, Criterion 	cri) throws Exception {		
+	private static List<ViAutUserDyn> reqListDyn(Object[] dataTableOption, Criterion 	cri,Boolean forced) throws Exception {		
 		int begin 		= (int)	dataTableOption[1];
 		int number 		= (int)	dataTableOption[2]; 
 		int sortCol 	= (int)	dataTableOption[3]; 
@@ -538,7 +537,11 @@ public class ServiceAutUser implements IService {
 			list	= ViAutUserDyn.DAO.reqList(begin, number, cri);
 		else
 			list	= ViAutUserDyn.DAO.reqList(begin, number, order, cri);			
-
+		if (list!=null){		
+			for(ViAutUserDyn item : list) {
+				item.doBuildDocuments(forced);
+			}
+		}
 		return list;
 	}
 
@@ -608,7 +611,7 @@ public class ServiceAutUser implements IService {
 		int 		entId		= ent.reqId();
 		//----set date validation if user is visistor.....
 		JSONArray	docs 		= (JSONArray) obj.get("files");
-//		ent.reqSet(TaAutUser.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheck(DefAPI.SV_MODE_NEW, ent, ENT_TYP, entId, docs));
+		ent.reqSet(TaAutUser.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheckUser(DefAPI.SV_MODE_NEW, ent, ENT_TYP, entId, docs));
 		
 		JSONObject	per 		= ToolData.reqJson	(obj, "per", null);
 		ent.reqSet(TaAutUser.ATT_O_PER_PERSON, TaPerPerson.reqCheck(DefAPI.SV_MODE_NEW, user.reqId(), ent.reqInt(TaAutUser.ATT_I_PER_PERSON), per, ent.reqId()));
@@ -759,11 +762,11 @@ public class ServiceAutUser implements IService {
 			}	
 			//remove all other object connecting to this ent first-------
 
-//			Session sessSub 	= TaTpyDocument	.DAO.reqSessionCurrent();
+			Session sessSub 	= TaTpyDocument	.DAO.reqSessionCurrent();
 			Session sessMain 	= TaAutUser		.DAO.reqSessionCurrent();
 			try {
 				TaTpyDocument		.doListDel	(sessMain, ENT_TYP, entId);
-//				TaTpyDocument		.doListDel(sessSub, entTyp, entId);
+	//			TaTpyDocument		.doListDel(sessSub, entTyp, entId);
 				
 				TaAutAuthUser	.doListDel	(sessMain, entId);
 				
@@ -771,11 +774,11 @@ public class ServiceAutUser implements IService {
 				cache_entity.reqDel(entId+"");
 				
 				TaAutUser			.DAO.doSessionCommit(sessMain);
-//				TaTpyDocument		.DAO.doSessionCommit(sessSub);
+				TaTpyDocument		.DAO.doSessionCommit(sessSub);
 			}catch(Exception e){
 				e.printStackTrace();
 				TaAutUser			.DAO.doSessionRollback(sessMain);
-//				TaTpyDocument		.DAO.doSessionRollback(sessSub);
+				TaTpyDocument		.DAO.doSessionRollback(sessSub);
 			}		
 		} else {
 			//Set status = -1

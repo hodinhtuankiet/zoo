@@ -45,6 +45,9 @@
 		<mapping class="com.hnv.db.mat.TaMatMaterial" />
 		<mapping class="com.hnv.db.mat.vi.ViMatMaterialDyn" />
 
+
+		<mapping class="com.hnv.db.job.TaJobReport" />
+		<mapping class="com.hnv.db.job.vi.ViJobReportDyn" />
 		<!-- SYS -->
 		<mapping class="com.hnv.db.sys.TaSysLock" />
 		<mapping class="com.hnv.db.sys.TaSysException" />

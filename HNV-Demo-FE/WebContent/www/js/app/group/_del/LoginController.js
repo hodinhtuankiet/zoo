@@ -1,6 +1,6 @@
 define(['jquery',
-	'text!group/cms/tmpl/Login_Content.html',
-	'text!group/cms/tmpl/Register_Content.html'
+	'text!group/login/tmpl/Login_Content.html',
+	'text!group/login/tmpl/Register_Content.html'
 	],
 	function ($, 
 			LOGIN_CONTENT,
@@ -13,7 +13,7 @@ define(['jquery',
 			return null;
 		};
 		//---------------------------------------
-		var pr_grpPath        = 'group/cms/';
+		var pr_grpPath        = 'group/login/';
 		//---------------------------------------
 		this.viewAfter        = FIRST_VIEW;
 
@@ -243,9 +243,9 @@ define(['jquery',
 		}
 
 		var doRegisterUser = function (obj_register) {
-			var ref = req_gl_Request_Content_Send("ServiceAutUser", "SVAutUserNew");
+			var ref = req_gl_Request_Content_Send("ServiceAutUser", "SVNew");
 
-			do_gl_Security_HttpHeader_Clear();
+	//		do_gl_Security_HttpHeader_Clear();
 			var sId    = -1;
 
 			var fSucces = [];

@@ -245,7 +245,7 @@ define(['jquery',
 		var doRegisterUser = function (obj_register) {
 			var ref = req_gl_Request_Content_Send("ServiceAutUser", "SVAutUserNew");
 
-			do_gl_Security_HttpHeader_Clear();
+		//	do_gl_Security_HttpHeader_Clear();
 			var sId    = -1;
 
 			var fSucces = [];
