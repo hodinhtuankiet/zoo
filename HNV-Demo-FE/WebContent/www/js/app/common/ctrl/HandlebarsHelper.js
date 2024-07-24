@@ -56,6 +56,22 @@ define([
 			return v1/v2;
 		}
 	});
+	Handlebars.registerHelper('checkbox', function(value, options) {
+	 	
+	    var $el = $('<div />').html(options.fn(this));
+		
+	    // Iterate over each checkbox and set the checked attribute
+		$el.find('[type="radio"]').each(function() {
+		       var $radio = $(this);
+		       if ($radio.val() == value) {
+		           $radio.attr({'checked': 'checked'}); // Use .attr() for setting the checked attribute
+		       } else {
+		           $radio.removeAttr('checked'); // Ensure other radios are not checked
+		       }
+		   });
+
+	    return new Handlebars.SafeString($el.html()); // Return the modified HTML
+	});
 
 	Handlebars.registerHelper('select', function(value, options) {
 		var $el = $('<select />').html( options.fn(this) );

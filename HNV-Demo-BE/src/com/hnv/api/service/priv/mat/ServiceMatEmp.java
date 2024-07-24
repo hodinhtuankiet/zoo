@@ -1,8 +1,7 @@
-package com.hnv.api.service.priv.job;
+package com.hnv.api.service.priv.mat;
 
 
 import java.util.Date;
-
 import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.List;
@@ -36,9 +35,10 @@ import com.hnv.data.json.JSONObject;
 import com.hnv.db.aut.TaAutAuthUser;
 import com.hnv.db.aut.TaAutHistory;
 import com.hnv.db.aut.TaAutUser;
-import com.hnv.db.job.TaJobReport;
-import com.hnv.db.job.vi.ViJobReportDyn;
-//import com.hnv.db.mat.vi.TaJobReport;
+import com.hnv.db.aut.vi.ViAutUserDyn;
+import com.hnv.db.aut.vi.ViAutUserMember;
+import com.hnv.db.aut.TaAutUser;
+import com.hnv.db.mat.vi.ViMatMaterialDyn;
 import com.hnv.db.per.TaPerPerson;
 import com.hnv.db.sys.TaSysLock;
 import com.hnv.db.tpy.TaTpyDocument;
@@ -48,11 +48,11 @@ import com.hnv.def.DefDBExt;
  * ----- ServiceNsoPost by H&V
  * ----- Copyright 2017------------
  */
-public class ServiceJobReport implements IService {
+public class ServiceMatEmp implements IService {
 	//--------------------------------Service Definition----------------------------------
 	public static final String SV_MODULE 					= "EC_V3".toLowerCase();
 
-	public static final String SV_CLASS 					= "ServiceJobReport".toLowerCase();	
+	public static final String SV_CLASS 					= "ServiceMatEmp".toLowerCase();	
 
 	public static final String SV_GET 						= "SVGet".toLowerCase();	
 	public static final String SV_LST_IN_IDS				= "SVLstInIds".toLowerCase();
@@ -74,10 +74,10 @@ public class ServiceJobReport implements IService {
 	public static final String SV_GET_FILE 					= "SVGetFile".toLowerCase();	
 	public static final String SV_MOD_TRANSL				= "SVModTransl".toLowerCase();	
 
-	public static final Integer	ENT_TYP						= DefDBExt.ID_TA_JOB_REPORT;
+	public static final Integer	ENT_TYP						= DefDBExt.ID_TA_MAT_MATERIAL;
 	//-----------------------------------------------------------------------------------------------
 	//-------------------------Default Constructor - Required -------------------------------------
-	public ServiceJobReport(){
+	public ServiceMatEmp(){
 		ToolLogServer.doLogInf("----" + SV_CLASS + " is loaded -----");
 	}
 
@@ -121,7 +121,7 @@ public class ServiceJobReport implements IService {
 			
 			}  else if(sv.equals(SV_NEW)			&&  (APIAuth.canAuthorizeWithOneRight(user, APIAuth.R_ADMIN, APIAuth.R_AUT_ALL_NEW, APIAuth.R_AUT_USER_NEW) 
 													|| 	APIAuth.canAuthorize(user, SV_CLASS, sv))) {
-	//			doNew(user, json, response);
+				doNew(user, json, response);
 
 			} else if(sv.equals(SV_MOD)				&&  (APIAuth.canAuthorizeWithOneRight(user, APIAuth.R_ADMIN, APIAuth.R_AUT_ALL_MOD, APIAuth.R_AUT_USER_MOD) 
 													||	APIAuth.canAuthorize(user, SV_CLASS, sv))) {
@@ -198,9 +198,9 @@ public class ServiceJobReport implements IService {
 		filter.add(TaAutUser.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_02);
 		filter.add(TaAutUser.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_03);
 		
-		filter.add(TaJobReport.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_01);
-		filter.add(TaJobReport.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_02);
-		filter.add(TaJobReport.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_03);
+		filter.add(ViAutUserDyn.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_01);
+		filter.add(ViAutUserDyn.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_02);
+		filter.add(ViAutUserDyn.class.getSimpleName()+"."+TaAutUser.ATT_T_PASS_03);
 	}
 	//---------------------------------------------------------------------------------------------------------
 	private static void doGet(TaAutUser user,  JSONObject json, HttpServletResponse response) throws Exception  {	
@@ -210,7 +210,7 @@ public class ServiceJobReport implements IService {
 		Boolean				forced		= ToolData.reqBool	(json, "forced"		, true	);
 //		Boolean				forManager	= ToolData.reqBool	(json, "forManager"	, false	);
 
-		TaJobReport 			ent 		= reqGet(entId, forced);
+		TaAutUser 			ent 		= reqGet(entId, forced);
 
 		if (ent==null){
 			API.doResponse(response, DefAPI.API_MSG_KO);
@@ -230,14 +230,13 @@ public class ServiceJobReport implements IService {
 				));
 	}
 	
-	private static CacheData<TaJobReport> 		cache_entity= new CacheData<TaJobReport>		(500, DefTime.TIME_24_00_00_000 );
-	public static TaJobReport reqGet(Integer entId, Boolean forced) throws Exception{
+	private static CacheData<TaAutUser> 		cache_entity= new CacheData<TaAutUser>		(500, DefTime.TIME_24_00_00_000 );
+	public static TaAutUser reqGet(Integer entId, Boolean forced) throws Exception{
 		String 			key		= entId+"";
-		// attempts to retrieve the entity from the cache
-		TaJobReport 		ent 	= cache_entity.reqData(key);	
+		TaAutUser 		ent 	= cache_entity.reqData(key);	
 		
 		if (forced || ent == null) {
-			ent 	= TaJobReport.DAO.reqEntityByRef(entId);
+			ent 	= TaAutUser.DAO.reqEntityByRef(entId);
 			if (ent!=null) {
 				//---do something and put to cache
 				cache_entity.reqPut(key, ent);
@@ -246,6 +245,7 @@ public class ServiceJobReport implements IService {
 			ToolLogServer.doLogInf("---reqNsoAreaGet use cache-----");
 			cache_entity.reqCheckIfOld(key); //cache in 20 hour
 		}
+
 
 		//---do build something other of ent like details....
 		if (ent!=null){		
@@ -274,18 +274,18 @@ public class ServiceJobReport implements IService {
 			return;
 		}
 
-		Criterion 			cri 	= Restrictions.in(TaJobReport.ATT_I_ID, ids);
+		Criterion 			cri 	= Restrictions.in(ViAutUserDyn.ATT_I_ID, ids);
 		
-		List<TaJobReport> 	list 	= TaJobReport.DAO.reqList(cri); //and other params if necessary
+		List<ViAutUserDyn> 	list 	= ViAutUserDyn.DAO.reqList(cri); //and other params if necessary
 		
 		if (list==null ){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 			return;
 		}
 		
-//		if(Boolean.TRUE.equals(buildAvatar)) {
-//			TaJobReport.doBuildAvatar(list);
-//		}
+		if(Boolean.TRUE.equals(buildAvatar)) {
+			ViAutUserDyn.doBuildAvatar(list);
+		}
 
 		API.doResponse(response, ToolJSON.reqJSonString(
 				filter,
@@ -299,7 +299,7 @@ public class ServiceJobReport implements IService {
 	private static void doLst(TaAutUser user,  JSONObject json, HttpServletResponse response) throws Exception  {
 		//ToolLogServer.doLogDebug("--------- "+ SV_CLASS+ ".doLst --------------");
 
-		List<TaJobReport> 	list = reqLst(user, json); //and other params if necessary
+		List<ViAutUserDyn> 	list = reqLst(user, json); //and other params if necessary
 		if (list==null ){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 			return;
@@ -314,18 +314,18 @@ public class ServiceJobReport implements IService {
 	}
 
 	
-	private static List<TaJobReport> reqLst(TaAutUser user, JSONObject json) throws Exception  {
+	private static List<ViAutUserDyn> reqLst(TaAutUser user, JSONObject json) throws Exception  {
 		Integer 			nbLine      = ToolData.reqInt		(json, "nbLine" 	, 10);
 		String 				searchkey	= ToolData.reqStr		(json, "searchkey"	, null);
-		Set<Integer>		stat01		= ToolData.reqSetInt	(json, "stat01"		, null);
+		Set<Integer>		stats		= ToolData.reqSetInt	(json, "stats"		, null);
 		Set<Integer>		typ01s		= ToolData.reqSetInt	(json, "typ01s"		, null);
 		Integer				typ02		= ToolData.reqInt		(json, "typ02"		, null);
 		Boolean				wAvatar		= ToolData.reqBool		(json, "wAvatar"	, false);
 		
-		Criterion 			cri			= reqRestrictionSearch(user, searchkey);
-		List<TaJobReport>	list		= TaJobReport.DAO.reqList(0, nbLine, cri);
+		Criterion 			cri			= reqRestrictionSearch(user, searchkey, stats, typ01s);
+		List<ViAutUserDyn>	list		= ViAutUserDyn.DAO.reqList(0, nbLine, cri);
 
-//		if (wAvatar) 		TaTpyDocument	.reqBuildAvatar(list, DefDBExt.ID_TA_AUT_USER, TaJobReport.ATT_O_AVATAR);
+		if (wAvatar) 		TaTpyDocument	.reqBuildAvatar(list, DefDBExt.ID_TA_AUT_USER, ViAutUserDyn.ATT_O_AVATAR);
 		return list;
 	}
 
@@ -336,30 +336,26 @@ public class ServiceJobReport implements IService {
 			put("id"		, 0 );
 			put("login01"	, 1 );
 			put("inf01"		, 2 );
-			put("cost"		, 3 );	
-			put("name01"	, 4 );
+			put("inf03"  	, 3 );
+			put("inf04"  	, 4 );
 		}
 	};
 	private static void doLstDyn(TaAutUser user,  JSONObject json, HttpServletResponse response) throws Exception {	
-	    // Retrieves options for a data table request, including search keys.
 		Object[]  			dataTableOption = ToolDatatable.reqDataTableOption (json, null);
 		Set<String>			searchKey		= (Set<String>)dataTableOption[0];
-		Set<Integer>		stat01			= ToolData.reqSetInt	(json, "stat01"	, null);
+		Set<Integer>		stats			= ToolData.reqSetInt	(json, "stat01"	, null);
 		Boolean				forced		= ToolData.reqBool	(json, "forced"		, true	);
-		
-//		if(typ01 == null && typ02== null && stats ==null) {
-//			API.doResponse(response,DefAPI.API_MSG_KO);
-//			return;
-//		}
-//		
-//		if (!canWorkWithObj(user, WORK_LST, null, stats)){ //other param after objTyp...
-//			API.doResponse(response,DefAPI.API_MSG_KO);
-//			return;
-//		}
-		//-------------------------------------------------------------------
-		Criterion 	cri 				= reqRestriction(user, searchKey, null, stat01);				
 
-		List<TaJobReport> list 		= reqListDyn(dataTableOption, cri, forced);
+		
+		
+		if (!canWorkWithObj(user, WORK_LST, null, stats)){ //other param after objTyp...
+			API.doResponse(response,DefAPI.API_MSG_KO);
+			return;
+		}
+		//-------------------------------------------------------------------
+		Criterion 	cri 				= reqRestriction(user, searchKey, null, stats);				
+
+		List<ViAutUserDyn> list 		= reqListDyn(dataTableOption, cri,forced);
 		if (list==null ){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 			return;
@@ -369,16 +365,16 @@ public class ServiceJobReport implements IService {
 //			}
 		}
 
-//		Integer iTotalRecords 			= reqNbNsoPostListDyn().intValue();				
-//		Integer iTotalDisplayRecords 	= reqNbNsoPostListDyn(cri).intValue();
+		Integer iTotalRecords 			= reqNbNsoPostListDyn().intValue();				
+		Integer iTotalDisplayRecords 	= reqNbNsoPostListDyn(cri).intValue();
 
 
 		API.doResponse(response, ToolJSON.reqJSonString(		
 				filter,
 				DefJS.SESS_STAT				, 1, 
 				DefJS.SV_CODE				, DefAPI.SV_CODE_API_YES,					
-//				"iTotalRecords"				, iTotalRecords,
-//				"iTotalDisplayRecords"		, iTotalDisplayRecords,
+				"iTotalRecords"				, iTotalRecords,
+				"iTotalDisplayRecords"		, iTotalDisplayRecords,
 				"aaData"					, list
 				));
 
@@ -404,20 +400,20 @@ public class ServiceJobReport implements IService {
 		Integer 			number			= ToolData.reqInt		(json, "number"		, 10); 
 		Integer 			total			= ToolData.reqInt		(json, "total"		, 0	);
 		
-		Set<Integer>		sta01			= ToolData.reqSetInt	(json, "sta01"		, null);
+		Set<Integer>		stats			= ToolData.reqSetInt	(json, "stats"		, null);
 		Set<Integer>		typs			= ToolData.reqSetInt	(json, "typs"		, null);
 		Boolean				buildInfo		= ToolData.reqBool		(json, "buildInfo"	, false);
 		Boolean				hardLoad		= ToolData.reqBool		(json, "hardLoad"	, false);
 		
-		String 				keyWord 		= sta01.toString();
+		String 				keyWord 		= stats.toString();
 		ResultPagination 	rs 				= null;
 		boolean				addCache		= true;
 		
-		if (!canWorkWithObj(user, WORK_LST, null, sta01)){ //other param after objTyp...
+		if (!canWorkWithObj(user, WORK_LST, null, stats)){ //other param after objTyp...
 			return null;
 		}
 		
-		if(sta01 == null || sta01.size() <= 0) {
+		if(stats == null || stats.size() <= 0) {
 			rs			= cacheEnt_rs.reqData(keyWord);
 		} else {
 			addCache = false;
@@ -425,17 +421,17 @@ public class ServiceJobReport implements IService {
 		
 		//-------------------------------------------------------------------
 		if(rs == null || hardLoad) {
-			Criterion 	cri 				= reqRestrictionSearch(user, searchKey);				
+			Criterion 	cri 				= reqRestrictionSearch(user, searchKey, stats, typs);				
 
-			List<TaJobReport> list 		= TaJobReport.DAO.reqList(begin, number);
+			List<ViAutUserDyn> list 		= ViAutUserDyn.DAO.reqList(begin, number, cri);
 			
-//			TaJobReport.doBuildAvatar(list);
-//			if(buildInfo) {
-//				TaJobReport.doBuildPer(list);
-//			}
+			ViAutUserDyn.doBuildAvatar(list);
+			if(buildInfo) {
+				ViAutUserDyn.doBuildPer(list);
+			}
 			
 			if (total == 0 ) {
-				total						= TaJobReport.DAO.reqCount().intValue();
+				total						= ViAutUserDyn.DAO.reqCount().intValue();
 			}
 			rs								= new ResultPagination(list, total, begin, number);
 			
@@ -448,71 +444,87 @@ public class ServiceJobReport implements IService {
 		return rs;
 	}
 	
-	private static Criterion reqRestrictionSearch(TaAutUser user,  String searchKey) {
+	private static Criterion reqRestrictionSearch(TaAutUser user,  String searchKey, Set<Integer> stats, Set<Integer> typs) {
 		if (user.canBeSuperAdmin()) {
-			return Restrictions.gt(TaJobReport.ATT_I_ID, 0);
+			return Restrictions.gt(ViAutUserDyn.ATT_I_ID, 0);
 		}
 		
-		Criterion cri = Restrictions.eq(TaJobReport.ATT_I_PER_MANAGER, user.reqPerManagerId());
+		Criterion cri = Restrictions.eq(ViAutUserDyn.ATT_I_PER_MANAGER, user.reqPerManagerId());
 		
+		if (stats == null){
+			stats = new HashSet<>() ; 
+			stats.add(ViAutUserDyn.STAT_ACTIVE);
+		}
+		cri = Restrictions.and(cri, Restrictions.in(ViAutUserDyn.ATT_I_STATUS, stats));
+		
+		if (!user.canBeSuperAdmin() && typs!=null) typs.remove(TaAutUser.TYPE_01_SUP_ADM);
+		
+		if (typs != null){
+			cri = Restrictions.and(	cri, Restrictions.in(ViAutUserDyn.ATT_I_TYPE_01, typs));
+		}
+
 		if (searchKey != null) {
 			searchKey = '%' + searchKey + '%';
 				cri = Restrictions.and(	cri, Restrictions.or(
-						Restrictions.ilike(TaJobReport.ATT_T_NAME_01, searchKey))
+						Restrictions.ilike(ViAutUserDyn.ATT_T_LOGIN_01, searchKey), 
+						Restrictions.ilike(ViAutUserDyn.ATT_T_LOGIN_02, searchKey),
+						Restrictions.ilike(ViAutUserDyn.ATT_T_INFO_01, searchKey),
+						Restrictions.ilike(ViAutUserDyn.ATT_T_INFO_02, searchKey) , 
+						Restrictions.ilike(ViAutUserDyn.ATT_T_INFO_03, searchKey))
+						
 				);
 		}
 		
 		return cri;
 	}
 
-	private static Criterion reqRestriction(TaAutUser user,  Set<String> searchKey, Integer manId, Set<Integer> stat01 ) throws Exception {	
+	private static Criterion reqRestriction(TaAutUser user,  Set<String> searchKey, Integer manId, Set<Integer> stats ) throws Exception {	
 		//--Pre-Check condition---------------------------------------------------
-		if (stat01 == null){
-			stat01 = new HashSet<>() ; 
-			stat01.add(1);
+		if (stats == null){
+			stats = new HashSet<>() ; 
+			stats.add(1);
 		}
 				
-		Criterion cri = Restrictions.in(TaJobReport.COL_I_STATUS, stat01);
-		
+		Criterion cri = Restrictions.in(ViAutUserDyn.ATT_I_STATUS, stats);
+//		
 //		if(typ01 != null) {
-//			cri = Restrictions.and(	cri, Restrictions.eq(ViMatMaterial.ATT_I_TYPE_01 , typ01));
+//			cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_01 , typ01));
 //			
-////			if(typ01 == TaJobReport.TYPE_01_AGENT) {
-////				cri = Restrictions.and(	cri, Restrictions.eq(TaJobReport.ATT_I_TYPE_02 , typ02));
+////			if(typ01 == ViAutUserDyn.TYPE_01_AGENT) {
+////				cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_02 , typ02));
 ////			}
 //		}
 
 		if (searchKey != null) {
-			for (String s : searchKey) {
-			    cri = Restrictions.and(cri, Restrictions.or(
-			  //  	Restrictions.ilike(TaJobReport.ATT_I_ID, '%' + s + '%'),
-			        Restrictions.ilike(TaJobReport.ATT_T_INFO_01, '%' + s + '%'),
-			        Restrictions.ilike(TaJobReport.ATT_T_INFO_02, '%' + s + '%')
-			    ));
+			for (String s : searchKey){
+				cri = Restrictions.and(	cri, Restrictions.or(
+						Restrictions.ilike(ViAutUserDyn.ATT_T_INFO_01, '%'+s+'%'),
+						Restrictions.ilike(ViAutUserDyn.ATT_T_LOGIN_01, '%'+s+'%') 
+						)
+				);
 			}
-
 		}
 		
 //		if (manId==null && !user.canBeSuperAdmin()) manId = user.reqPerManagerId();
-//		if (manId!=null) cri = Restrictions.and(cri, Restrictions.eq(ViMatMaterial.ATT_I_PER_MANAGER, manId));
+//		if (manId!=null) cri = Restrictions.and(cri, Restrictions.eq(ViAutUserDyn.ATT_I_PER_MANAGER, manId));
 		return cri;
 	}
 
-	private static List<TaJobReport> reqListDyn(Object[] dataTableOption,	Criterion 	cri,Boolean forced) throws Exception {		
+	private static List<ViAutUserDyn> reqListDyn(Object[] dataTableOption, Criterion 	cri,Boolean forced) throws Exception {		
 		int begin 		= (int)	dataTableOption[1];
 		int number 		= (int)	dataTableOption[2]; 
 		int sortCol 	= (int)	dataTableOption[3]; 
 		int sortTyp 	= (int)	dataTableOption[4];	
 
-		List<TaJobReport> list 	= null;		
+		List<ViAutUserDyn> list 	= null;		
 
 		Order 	order 	= null;			
 		String 	colName = null;
 
 		switch(sortCol){
-		case 0: colName = TaJobReport.ATT_I_ID; break;		
-		case 1: colName = TaJobReport.ATT_T_INFO_01; break;	
-		case 2: colName = TaJobReport.ATT_T_INFO_02; break;		
+		case 0: colName = ViAutUserDyn.ATT_I_ID; break;		
+		case 1: colName = ViAutUserDyn.ATT_T_LOGIN_01; break;			
+		case 2: colName = ViAutUserDyn.ATT_I_TYPE_01; break;		
 		}
 
 		if (colName!=null){
@@ -523,29 +535,28 @@ public class ServiceJobReport implements IService {
 		}
 
 		if (order==null)
-			list	= TaJobReport.DAO.reqList(begin, number,cri);
+			list	= ViAutUserDyn.DAO.reqList(begin, number, cri);
 		else
-			list	= TaJobReport.DAO.reqList(begin, number, order,cri);
-		
+			list	= ViAutUserDyn.DAO.reqList(begin, number, order, cri);			
 		if (list!=null){		
-			for(TaJobReport item : list) {
+			for(ViAutUserDyn item : list) {
 				item.doBuildDocuments(forced);
 			}
 		}
 		return list;
 	}
-	
+
 	private static Number reqNbNsoPostListDyn() throws Exception {						
-		return TaJobReport.DAO.reqCount();		
+		return ViAutUserDyn.DAO.reqCount();		
 	}
 	
 	private static Number reqNbNsoPostListDyn(Criterion cri) throws Exception {			
-		return TaJobReport.DAO.reqCount(cri);
+		return ViAutUserDyn.DAO.reqCount(cri);
 	}
 
 	//---------------------------------------------------------------------------------------------------------
 	private static void doNew (TaAutUser user,  JSONObject json, HttpServletResponse response) throws Exception  {
-		TaJobReport 			ent		= reqNew		(user, json);
+		TaAutUser 			ent		= reqNew		(user, json);
 		if (ent==null){
 			API.doResponse(response, ToolJSON.reqJSonString(
 					DefJS.SESS_STAT		, 1, 
@@ -563,30 +574,24 @@ public class ServiceJobReport implements IService {
 				));
 	}
 
-	private static TaJobReport reqNew(TaAutUser user,  JSONObject json) throws Exception {
+	private static TaAutUser reqNew(TaAutUser user,  JSONObject json) throws Exception {
 		Integer			userId		= user.reqId();
 		Integer			manId		= user.reqPerManagerId();
 		JSONObject		obj			= ToolData.reqJson(json, "obj", null);
 
 		//--------------------------------------------------------------------------------------------
-		Map<String, Object> attrUsr = API.reqMapParamsByClass(obj	, TaJobReport.class);
-		
-		//----Test------------------------------------------------------------------------------------
+		Map<String, Object> attrUsr = API.reqMapParamsByClass(obj	, TaAutUser.class);
 		
 		
 		//----set value------------------------------------------------------------------------------------
-		attrUsr.put(TaJobReport.ATT_I_STATUS		, 1);
-//		attrUsr.put(TaJobReport.ATT_D_DATE_01		, new Date());
-//		attrUsr.put(TaJobReport.ATT_D_DATE_02		, null);
-//		attrUsr.put(TaJobReport.ATT_I_AUT_USER_01	, userId);
+		attrUsr.put(TaAutUser.ATT_I_STATUS, 1);
 		
-		TaJobReport ent = new TaJobReport(attrUsr);	
-		
-		TaJobReport.DAO.doPersist(ent);
+		TaAutUser ent = new TaAutUser(attrUsr);	
+		TaAutUser.DAO.doPersist(ent);
+
 		int 		entId		= ent.reqId();
 		
-		JSONArray	docs 		= (JSONArray) obj.get("files");
-		ent.reqSet(TaJobReport.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheckJob(DefAPI.SV_MODE_NEW, ent, ENT_TYP, entId, docs));
+//		ent.doBuildSuperior (true);
 		return ent;
 	}
 	
@@ -596,7 +601,7 @@ public class ServiceJobReport implements IService {
 	private static void doMod(TaAutUser user,  JSONObject json, HttpServletResponse response) throws Exception  {
 		//ToolLogServer.doLogDebug("--------- "+ SV_CLASS+ ".doMod --------------");
 
-		TaJobReport  		ent	 	=  reqMod(user, json, false); 								
+		TaAutUser  		ent	 	=  reqMod(user, json, false); 								
 		if (ent==null){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 		} else {
@@ -608,12 +613,12 @@ public class ServiceJobReport implements IService {
 		}		
 	}
 
-	private static TaJobReport reqMod(TaAutUser user,  JSONObject json, boolean wAuths) throws Exception {
+	private static TaAutUser reqMod(TaAutUser user,  JSONObject json, boolean wAuths) throws Exception {
 		// Extract a nested JSONObject from the input json object using the key "obj".
 	    // If "obj" is not found, return null.
 		JSONObject			obj		= ToolData.reqJson 	(json	, "obj"	, null);
 		int 				entId 	= ToolData.reqInt	(obj	, "id"	, -1);
-		TaJobReport 			ent 	= TaJobReport.DAO.reqEntityByRef(entId);
+		TaAutUser 			ent 	= TaAutUser.DAO.reqEntityByRef(entId);
 		if (ent==null){
 			return null;
 		}
@@ -621,28 +626,28 @@ public class ServiceJobReport implements IService {
 		if (!canWorkWithObj(user, WORK_MOD, ent)){ //other param after obj...
 			return null;
 		}
-		Map<String, Object> attr 	= API.reqMapParamsByClass(obj, TaJobReport.class);
+		Map<String, Object> attr 	= API.reqMapParamsByClass(obj, TaAutUser.class);
 		
 		// Remove specific attributes from the map to prevent modification of these fields.
-		attr.remove(TaJobReport.ATT_I_ID);
-		attr.remove(TaJobReport.ATT_D_DATE_01);
-		attr.remove(TaJobReport.ATT_I_AUT_USER_01);
+		attr.remove(TaAutUser.ATT_I_ID);
+		attr.remove(TaAutUser.ATT_D_DATE_01);
+		attr.remove(TaAutUser.ATT_I_AUT_USER_01);
 
 		if (!user.canBeSuperAdmin()) {
-			attr.remove(TaJobReport.ATT_I_PER_MANAGER);
+			attr.remove(TaAutUser.ATT_I_PER_MANAGER);
 		}
-		attr.put(TaJobReport.ATT_D_DATE_02		, new Date());
-		attr.put(TaJobReport.ATT_I_AUT_USER_02	, user.reqId());
+		attr.put(TaAutUser.ATT_D_DATE_02		, new Date());
+		attr.put(TaAutUser.ATT_I_AUT_USER_02	, user.reqId());
 		String pass = (String) attr.get(TaAutUser.ATT_T_PASS_01);
 		
 		if (pass==null|| pass.length()==0) attr.remove(TaAutUser.ATT_T_PASS_01);
 	    // Merge the updated attributes into the existing entity in the database.
-		TaJobReport.DAO.doMerge(ent, attr);	
+		TaAutUser.DAO.doMerge(ent, attr);	
 		 // Update the cache with the modified entity.
-		cache_entity.reqPut(entId+"", ent);
-		
+//		cache_entity.reqPut(entId+"", ent);
 		JSONArray	docs		= (JSONArray) obj.get("files");	
-		ent.reqSet(TaJobReport.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheckJob(DefAPI.SV_MODE_MOD, ent, ENT_TYP, entId, docs));
+		
+		ent.reqSet(TaAutUser.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheckUser(DefAPI.SV_MODE_MOD, ent, ENT_TYP, entId, docs));
 		return ent;
 	}
 
@@ -667,17 +672,18 @@ public class ServiceJobReport implements IService {
 		} else {
 			API.doResponse(response, ToolJSON.reqJSonString(DefJS.SESS_STAT, 1, DefJS.SV_CODE, DefAPI.SV_CODE_API_YES));
 		}
+
 		ToolDBLock.canDeleteLock(lock);
 	}
 
 	private static boolean canDel(TaAutUser user,  JSONObject json) throws Exception {
 		Integer 	entId	= ToolData.reqInt	(json, "id", null	);
 		  // Retrieve a TaMatMaterial entity from the database using the entId.
-		TaJobReport  	ent	 	= TaJobReport.DAO.reqEntityByRef(entId);
+		TaAutUser  	ent	 	= TaAutUser.DAO.reqEntityByRef(entId);
 		if (ent==null){
 			return false;
 		}
-		Integer stat = ent.reqInt(TaJobReport.ATT_I_STATUS);
+		Integer stat = ent.reqInt(TaAutUser.ATT_I_STATUS);
 		// STAT_DELETED =10
 		if (stat.equals(TaAutUser.STAT_DELETED)) {
 			// Check if the user has the right permissions to work with the object (ent) for deletion.
@@ -692,22 +698,22 @@ public class ServiceJobReport implements IService {
 				TaTpyDocument		.doListDel	(sessMain, ENT_TYP, entId);
 //				TaTpyDocument		.doListDel(sessSub, entTyp, entId);
 //				TaAutAuthUser	.doListDel	(sessMain, entId);
-				TaJobReport.DAO		.doRemove 	(sessMain, ent);
+				TaAutUser.DAO		.doRemove 	(sessMain, ent);
 				cache_entity.reqDel(entId+"");
 				  // Commit the session changes.
-				TaJobReport			.DAO.doSessionCommit(sessMain);
+				TaAutUser			.DAO.doSessionCommit(sessMain);
 //				TaTpyDocument		.DAO.doSessionCommit(sessSub);
 			}catch(Exception e){
 				e.printStackTrace();
 				  // Rollback the session changes if an exception occurs and print the stack trace.
-				TaJobReport			.DAO.doSessionRollback(sessMain);
+				TaAutUser			.DAO.doSessionRollback(sessMain);
 //				TaTpyDocument		.DAO.doSessionRollback(sessSub);
 			}		
 		} else {
 			//Set status = -1
-			ent.reqSet(TaJobReport.ATT_I_STATUS, TaJobReport.STAT_DELETED);
-			TaJobReport.DAO.doMerge(ent);	
-			cache_entity.reqPut(entId+"", ent);
+			ent.reqSet(TaAutUser.ATT_I_STATUS, TaAutUser.STAT_DELETED);
+			TaAutUser.DAO.doMerge(ent);	
+//			cache_entity.reqPut(entId+"", ent);
 		}
 		return true;
 	}
@@ -758,7 +764,7 @@ public class ServiceJobReport implements IService {
 			return;
 		}
 		
-		TaJobReport  		ent	 	=  reqMod(user, json, true); 								
+		TaAutUser  		ent	 	=  reqMod(user, json, true); 								
 		if (ent==null){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 		} else {				
@@ -780,8 +786,7 @@ public class ServiceJobReport implements IService {
 			return;
 		}
 		
-		
-		TaJobReport ent = reqMod(user, json, true);						
+		TaAutUser ent = reqMod(user, json, true);						
 		if (ent==null){
 			API.doResponse(response,DefAPI.API_MSG_KO);
 		} else {

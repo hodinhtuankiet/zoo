@@ -43,6 +43,7 @@ public class DefDBExt {
 	public static final String	TA_FIN_FINANCE                     =	"TA_FIN_FINANCE";
 	
 	public static final String	TA_MAT_MATERIAL                    =	"TA_MAT_MATERIAL";
+	public static final String	TA_MAT_EMP                    		=	"TA_MAT_MATERIAL";
 	public static final String	TA_MAT_MATERIAL_DETAIL             =	"TA_MAT_MATERIAL_DETAIL";
 	public static final String	VI_MAT_MATERIAL                    =	"VI_MAT_MATERIAL";
 	
@@ -120,7 +121,7 @@ public class DefDBExt {
 	public static final int	ID_TA_MAT_STOCK_IO_HISTORY                              =   20302;
 	public static final int	ID_TA_MAT_UNIT                                          =   20400;
 	public static final int	ID_TA_MAT_PRICE                                         =   20500;
-	
+	public static final int	ID_TA_MAT_EMP                                         	=   20501;
 	public static final int	ID_TA_FIN_FINANCE                                       =   30000;
 	
 	//----------------------------------------------------------------------------------------------------
