@@ -249,16 +249,16 @@ public class ServiceAutUser implements IService {
 		//---do build something other of ent like details....
 		if (ent!=null){		
 			ent.doBuildDocuments(forced);
-//			ent.doBuildAvatar	(forced);
-//			ent.doBuildPerson	(forced);
+			ent.doBuildAvatar	(forced);
+			ent.doBuildPerson	(forced);
 			
-//			ent.doBuilAuth		(forced, null);
-//			ent.doBuilAuths		(forced);			
-//			ent.doBuildManager	(forced);	
-//			ent.doBuildSuperior	(forced);
-//			ent.doBuildHistoryConnection(forced);
-//			
-//			ent.doHidePwd();
+		//	ent.doBuilAuth		(forced, null);
+			ent.doBuilAuths		(forced);			
+			ent.doBuildManager	(forced);	
+			ent.doBuildSuperior	(forced);
+			ent.doBuildHistoryConnection(forced);
+			
+			ent.doHidePwd();
 		}
 
 		return ent;
@@ -344,8 +344,6 @@ public class ServiceAutUser implements IService {
 		Set<String>			searchKey		= (Set<String>)dataTableOption[0];
 		Set<Integer>		stats			= ToolData.reqSetInt	(json, "stat01"	, null);
 		Boolean				forced		= ToolData.reqBool	(json, "forced"		, true	);
-
-		
 		
 		if (!canWorkWithObj(user, WORK_LST, null, stats)){ //other param after objTyp...
 			API.doResponse(response,DefAPI.API_MSG_KO);
@@ -580,9 +578,6 @@ public class ServiceAutUser implements IService {
 
 		//--------------------------------------------------------------------------------------------
 		Map<String, Object> attrUsr = API.reqMapParamsByClass(obj	, TaAutUser.class);
-//		{"inf01":"name"}
-//		attrUsr = {"T_Login_01":"name","T_n":1}
-// 		attrUsr.get("T_Login_01)
 		
 		//----Test------------------------------------------------------------------------------------
 		String 			login		= (String) attrUsr.get(TaAutUser.ATT_T_LOGIN_01);	
@@ -690,7 +685,7 @@ public class ServiceAutUser implements IService {
 		
 		//merge files for user
 		JSONArray	docs		= (JSONArray) obj.get("files");	
-//		ent.reqSet(TaAutUser.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheck(DefAPI.SV_MODE_MOD, ent, ENT_TYP, entId, docs));
+		ent.reqSet(TaAutUser.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheckUser(DefAPI.SV_MODE_MOD, ent, ENT_TYP, entId, docs));
 
 		//---check authorization with multi roles
 		if (wAuths) {

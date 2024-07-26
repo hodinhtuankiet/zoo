@@ -567,10 +567,6 @@ public class ServiceMatMaterial implements IService {
 
 		//--------------------------------------------------------------------------------------------
 		Map<String, Object> attrUsr = API.reqMapParamsByClass(obj	, TaMatMaterial.class);
-		
-		//----Test------------------------------------------------------------------------------------
-		
-		
 		//----set value------------------------------------------------------------------------------------
 		attrUsr.put(TaMatMaterial.ATT_I_STATUS_01		, 1);
 		attrUsr.put(TaMatMaterial.ATT_D_DATE_01		, new Date());

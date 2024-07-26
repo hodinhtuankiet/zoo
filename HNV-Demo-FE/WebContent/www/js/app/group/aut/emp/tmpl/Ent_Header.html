@@ -44,24 +44,18 @@
 					<!-- 					</div> -->
 
 					<div class="form-group row">
-					    <label class="col-4 control-label">{{transl "ROLE"}}</label>
-					    <div class="col-8">
-					    	{{#checkbox typ01}}
-					        <div class="form-check">
-					            <input class="form-check-input objData" type="radio" name ="hi" value="2" id="typ01_adm" data-name="typ01" data-validation="number" >
-					            <label class="form-check-label" for="typ01_adm">
-					                {{transl "aut_user_ent_typ01_adm"}}
-					            </label>
-					        </div>
-					        <div class="form-check">
-					            <input class="form-check-input objData" type="radio" name ="hi" value="3" id="typ01_agent" data-name="typ01" data-validation="number" >
-					            <label class="form-check-label" for="typ01_agent">
-					                {{transl "aut_user_ent_typ01_agent"}}
-					            </label>
-					        </div>
-					         {{/checkbox}}
-					    </div>
-					</div>
+    <label for="inp_ent_typ" class="col-4 control-label">{{transl 'aut_user_ent_typ'}}</label>
+    <div class="col-8">
+        <input name="state" class="objData box-inp" type="checkbox"
+               data-name="type01" id="inp_ent_typ_5" {{#equal typ01 5}}checked{{/equal}} />
+        <span class="" style="font-weight:bold">Manager</span>
+        <input name="state" class="objData box-inp" type="checkbox"
+               data-name="typ01" id="inp_ent_typ_6" {{#equal typ01 6}}checked{{/equal}} />
+        <span class="" style="font-weight:bold">Employee</span>
+    </div>
+</div>
+
+
 
 					<div class="form-group row">
 						<label for="inp_ent_stat" class="col-4 control-label">{{transl "aut_user_ent_stat"}}</label>

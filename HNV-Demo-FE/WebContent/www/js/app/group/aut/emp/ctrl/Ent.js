@@ -207,7 +207,12 @@ define([
 					oldObject: { "files": obj.files },
 					removeDeleted: true
 				});
-
+		//		data.data.stat
+				if(data.data.typ01 === 1)
+				data.data.typ01 = 6
+				else 
+				data.data.typ01 = 5
+				
 				data.data = req_reformat_data_send(data.data);
 
 
