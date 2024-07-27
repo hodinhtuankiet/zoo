@@ -763,7 +763,7 @@ public class ServiceAutUser implements IService {
 				TaTpyDocument		.doListDel	(sessMain, ENT_TYP, entId);
 	//			TaTpyDocument		.doListDel(sessSub, entTyp, entId);
 				
-				TaAutAuthUser	.doListDel	(sessMain, entId);
+	//			TaAutAuthUser	.doListDel	(sessMain, entId);
 				
 				TaAutUser.DAO		.doRemove 	(sessMain, ent);
 				cache_entity.reqDel(entId+"");
@@ -773,17 +773,13 @@ public class ServiceAutUser implements IService {
 			}catch(Exception e){
 				e.printStackTrace();
 				TaAutUser			.DAO.doSessionRollback(sessMain);
-				TaTpyDocument		.DAO.doSessionRollback(sessSub);
+		//		TaTpyDocument		.DAO.doSessionRollback(sessSub);
 			}		
 		} else {
 			//Set status = -1
 			ent.reqSet(TaAutUser.ATT_I_STATUS, TaAutUser.STAT_DELETED);
 			TaAutUser.DAO.doMerge(ent);	
 			cache_entity.reqPut(entId+"", ent);
-			
-			ServiceAPILoginCheck.doRemoveFromCache(ent.reqStr(TaAutUser.ATT_T_LOGIN_01));
-			ServiceAPILoginCheck.doRemoveFromCache(ent.reqStr(TaAutUser.ATT_T_LOGIN_02));
-			ServiceAPILoginCheck.doRemoveFromCache(ent.reqStr(TaAutUser.ATT_T_LOGIN_03));
 		}
 
 		return true;

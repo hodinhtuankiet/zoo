@@ -254,7 +254,7 @@ public class ServiceMatEmp implements IService {
 //			ent.doBuildPerson	(forced);
 			
 //			ent.doBuilAuth		(forced, null);
-//			ent.doBuilAuths		(forced);			
+			ent.doBuilAuths		(forced);			
 //			ent.doBuildManager	(forced);	
 //			ent.doBuildSuperior	(forced);
 //			ent.doBuildHistoryConnection(forced);
@@ -345,8 +345,6 @@ public class ServiceMatEmp implements IService {
 		Set<String>			searchKey		= (Set<String>)dataTableOption[0];
 		Set<Integer>		stats			= ToolData.reqSetInt	(json, "stat01"	, null);
 		Boolean				forced		= ToolData.reqBool	(json, "forced"		, true	);
-
-		
 		
 		if (!canWorkWithObj(user, WORK_LST, null, stats)){ //other param after objTyp...
 			API.doResponse(response,DefAPI.API_MSG_KO);
@@ -377,6 +375,7 @@ public class ServiceMatEmp implements IService {
 				"iTotalDisplayRecords"		, iTotalDisplayRecords,
 				"aaData"					, list
 				));
+
 
 	}
 	
@@ -524,7 +523,7 @@ public class ServiceMatEmp implements IService {
 		switch(sortCol){
 		case 0: colName = ViAutUserDyn.ATT_I_ID; break;		
 		case 1: colName = ViAutUserDyn.ATT_T_LOGIN_01; break;			
-		case 2: colName = ViAutUserDyn.ATT_I_TYPE_01; break;		
+		case 2: colName = ViAutUserDyn.ATT_T_INFO_01; break;		
 		}
 
 		if (colName!=null){
@@ -582,6 +581,10 @@ public class ServiceMatEmp implements IService {
 		//--------------------------------------------------------------------------------------------
 		Map<String, Object> attrUsr = API.reqMapParamsByClass(obj	, TaAutUser.class);
 		
+		String 			login		= (String) attrUsr.get(TaAutUser.ATT_T_LOGIN_01);	
+		if (login==null || login.length()==0) return null;
+		TaAutUser		test		= TaAutUser.DAO.reqEntityByValue(TaAutUser.ATT_T_LOGIN_01, login);
+		if (test!=null) return null;
 		
 		//----set value------------------------------------------------------------------------------------
 		attrUsr.put(TaAutUser.ATT_I_STATUS, 1);
@@ -590,6 +593,13 @@ public class ServiceMatEmp implements IService {
 		TaAutUser.DAO.doPersist(ent);
 
 		int 		entId		= ent.reqId();
+		
+		JSONArray	docs		= (JSONArray) obj.get("files");	
+		ent.reqSet(TaAutUser.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheckUser(DefAPI.SV_MODE_NEW, ent, ENT_TYP, entId, docs));
+		
+		JSONArray	authArr 		= ToolData.reqJsonArr(obj, "auths", null);
+		ent.reqSet(TaAutUser.ATT_O_AUTHS, TaAutAuthUser.reqListCheck( DefAPI.SV_MODE_NEW, entId, authArr));
+		
 		
 //		ent.doBuildSuperior (true);
 		return ent;
@@ -645,9 +655,14 @@ public class ServiceMatEmp implements IService {
 		TaAutUser.DAO.doMerge(ent, attr);	
 		 // Update the cache with the modified entity.
 //		cache_entity.reqPut(entId+"", ent);
-		JSONArray	docs		= (JSONArray) obj.get("files");	
 		
+		JSONArray	docs		= (JSONArray) obj.get("files");	
 		ent.reqSet(TaAutUser.ATT_O_DOCUMENTS, TaTpyDocument.reqListCheckUser(DefAPI.SV_MODE_MOD, ent, ENT_TYP, entId, docs));
+		
+		if (wAuths) {
+			JSONArray	authArr 		= ToolData.reqJsonArr(obj, "auths", null);
+			ent.reqSet(TaAutUser.ATT_O_AUTHS, TaAutAuthUser.reqListCheck( DefAPI.SV_MODE_MOD, entId, authArr));
+		}
 		return ent;
 	}
 
