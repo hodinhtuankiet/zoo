@@ -43,6 +43,8 @@ define([
 		var pr_ctr_Main 			= null;
 		var pr_ctr_List 			= null;
 		var pr_ctr_Ent				= null;
+		var pr_Admin				= "3";
+		var pr_Empl					= "5";
 		//-----------------------------------------------------------------------------------
 		var pr_datatables			= {};
 		//-----------------------------------------------------------------------------------
@@ -76,8 +78,8 @@ define([
 		this.do_lc_show = function(){               
 			try{
 				$(pr_divContent).html(tmplCtrl.req_lc_compile_tmpl(tmplName.LIST		, {}));
-				self.do_lc_show_byTypeStat("#div_List_Typ_Adm"		, tmplName.LIST_TYP_ADM	 		, 	pr_TYP_01_ADM	, null	, null);
-				self.do_lc_show_byTypeStat("#div_List_Typ_Agent"	, tmplName.LIST_TYP_AGENT		, 	pr_TYP_01_AGENT	, null	, null);
+				self.do_lc_show_byTypeStat("#div_List_Typ_Adm"		, tmplName.LIST_TYP_ADM	 		, 	"5"	, null	, null);
+				self.do_lc_show_byTypeStat("#div_List_Typ_Agent"	, tmplName.LIST_TYP_AGENT		, 	null	, "4"	, null);
 //				self.do_lc_show_byTypeStat("#div_List_Typ_Cand"		, tmplName.LIST_TYP_CAND	 	, 	pr_TYP_01_CLIENT, pr_TYP_02_CAND	, null);
 //				self.do_lc_show_byTypeStat("#div_List_Typ_Recr"		, tmplName.LIST_TYP_RECR	 	, 	pr_TYP_01_CLIENT, pr_TYP_02_RECR	, null);
 				//---------------------------------------------------------------

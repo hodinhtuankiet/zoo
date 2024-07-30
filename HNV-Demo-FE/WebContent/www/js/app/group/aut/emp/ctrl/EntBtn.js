@@ -104,10 +104,10 @@ define([
 				}else if(mode==App['const'].MODE_SEL){ // a object selected				
 					$(pr_btn_Create		)	.show();
 					$(pr_btn_Edit		)	.show();
-					$(pr_btn_Duplicate	)	.hide();
+					$(pr_btn_Duplicate	)	.show();
 					$(pr_btn_Del		)	.show();
 
-					$(pr_btn_Export		)	.hide();
+					$(pr_btn_Export		)	.show();
 					$(pr_btn_Send		)	.hide();
 					$(pr_btn_Print		)	.hide();
 
@@ -168,7 +168,7 @@ define([
 
 				do_bind_event_btn_save		(obj, mode);
 				do_bind_event_btn_cancel	(obj, mode);
-
+				do_bind_event_btn_export     (obj, mode);
 //				var rightSocMa = pr_ctr_Main.do_verify_user_right_soc_manage();
 //				if(rightSocMa)
 //				do_bind_event_btn_transform	(obj, mode);

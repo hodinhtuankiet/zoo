@@ -74,7 +74,7 @@ public class ServiceMatEmp implements IService {
 	public static final String SV_GET_FILE 					= "SVGetFile".toLowerCase();	
 	public static final String SV_MOD_TRANSL				= "SVModTransl".toLowerCase();	
 
-	public static final Integer	ENT_TYP						= DefDBExt.ID_TA_MAT_MATERIAL;
+	public static final Integer	ENT_TYP						= DefDBExt.ID_TA_AUT_USER;
 	//-----------------------------------------------------------------------------------------------
 	//-------------------------Default Constructor - Required -------------------------------------
 	public ServiceMatEmp(){
@@ -344,14 +344,20 @@ public class ServiceMatEmp implements IService {
 		Object[]  			dataTableOption = ToolDatatable.reqDataTableOption (json, null);
 		Set<String>			searchKey		= (Set<String>)dataTableOption[0];
 		Set<Integer>		stats			= ToolData.reqSetInt	(json, "stat01"	, null);
+		Integer				typ02			= 				ToolData.reqInt	(json, "typ02"	, null);
+		Integer				typ01			= 				ToolData.reqInt	(json, "typ01"	, null);
 		Boolean				forced		= ToolData.reqBool	(json, "forced"		, true	);
 		
+		
+//		if(typ02 == null) {
+//			API.doResponse(response,DefAPI.API_MSG_KO);
+//		}
 		if (!canWorkWithObj(user, WORK_LST, null, stats)){ //other param after objTyp...
 			API.doResponse(response,DefAPI.API_MSG_KO);
 			return;
 		}
 		//-------------------------------------------------------------------
-		Criterion 	cri 				= reqRestriction(user, searchKey, null, stats);				
+		Criterion 	cri 				= reqRestriction(user, searchKey, null, stats, typ02,typ01);				
 
 		List<ViAutUserDyn> list 		= reqListDyn(dataTableOption, cri,forced);
 		if (list==null ){
@@ -477,7 +483,7 @@ public class ServiceMatEmp implements IService {
 		return cri;
 	}
 
-	private static Criterion reqRestriction(TaAutUser user,  Set<String> searchKey, Integer manId, Set<Integer> stats ) throws Exception {	
+	private static Criterion reqRestriction(TaAutUser user,  Set<String> searchKey, Integer manId, Set<Integer> stats,Integer typ02,Integer typ01 ) throws Exception {	
 		//--Pre-Check condition---------------------------------------------------
 		if (stats == null){
 			stats = new HashSet<>() ; 
@@ -486,12 +492,27 @@ public class ServiceMatEmp implements IService {
 				
 		Criterion cri = Restrictions.in(ViAutUserDyn.ATT_I_STATUS, stats);
 //		
-//		if(typ01 != null) {
-//			cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_01 , typ01));
+		if(typ02 != null) {
+			cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_02 , typ02));
+			
+			if(typ02 == 4 ) {
+				cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_02 , typ02));
+			}
+		}
+		if(typ01 != null) {
+			cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_01 , typ01));
+			
+			if(typ01 == 5 ) {
+				cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_01 , typ01));
+			}
+		}
+		
+//		if(typ02 != null) {
+//			cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_01 , typ02));
 //			
-////			if(typ01 == ViAutUserDyn.TYPE_01_AGENT) {
-////				cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_02 , typ02));
-////			}
+//			if(typ02 == 5  ) {
+//				cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_01 , typ02));
+//			}
 //		}
 
 		if (searchKey != null) {
@@ -601,7 +622,7 @@ public class ServiceMatEmp implements IService {
 		ent.reqSet(TaAutUser.ATT_O_AUTHS, TaAutAuthUser.reqListCheck( DefAPI.SV_MODE_NEW, entId, authArr));
 		
 		
-//		ent.doBuildSuperior (true);
+		ent.doBuildSuperior (true);
 		return ent;
 	}
 	

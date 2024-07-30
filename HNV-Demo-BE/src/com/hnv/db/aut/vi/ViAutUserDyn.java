@@ -41,6 +41,7 @@ public class ViAutUserDyn extends EntityAbstract<ViAutUserDyn> {
 	public static final int 	TYPE_01_SUP_ADM		= 1;
 	public static final int 	TYPE_01_ADM			= 1;
 	public static final int 	TYPE_01_AGENT		= 2;
+	public static final int 	TYPE_02_AGENT		= 3;
 //	
 //	public static final int 	TYPE_01_MENTOR     	= 6;
 //	public static final int 	TYPE_01_CLIENT		= 4;
