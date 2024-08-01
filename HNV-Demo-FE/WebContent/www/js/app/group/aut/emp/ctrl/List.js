@@ -78,10 +78,10 @@ define([
 		this.do_lc_show = function(){               
 			try{
 				$(pr_divContent).html(tmplCtrl.req_lc_compile_tmpl(tmplName.LIST		, {}));
-				self.do_lc_show_byTypeStat("#div_List_Typ_Adm"		, tmplName.LIST_TYP_ADM	 		, 	"5"	, null	, null);
-				self.do_lc_show_byTypeStat("#div_List_Typ_Agent"	, tmplName.LIST_TYP_AGENT		, 	null	, "4"	, null);
-//				self.do_lc_show_byTypeStat("#div_List_Typ_Cand"		, tmplName.LIST_TYP_CAND	 	, 	pr_TYP_01_CLIENT, pr_TYP_02_CAND	, null);
-//				self.do_lc_show_byTypeStat("#div_List_Typ_Recr"		, tmplName.LIST_TYP_RECR	 	, 	pr_TYP_01_CLIENT, pr_TYP_02_RECR	, null);
+				self.do_lc_show_byTypeStat("#div_List_Typ_Adm"		, tmplName.LIST_TYP_ADM	 		, 	"5"	, null	, "1");
+				self.do_lc_show_byTypeStat("#div_List_Typ_Agent"	, tmplName.LIST_TYP_AGENT		, 	"2"	, null	, "1");
+				self.do_lc_show_byTypeStat("#div_List_Typ_Cand"		, tmplName.LIST_TYP_CAND	 	, 	null, "4"	, "1");
+				self.do_lc_show_byTypeStat("#div_List_Typ_Recr"		, tmplName.LIST_TYP_RECR	 	, 	"3", null	, "1");
 				//---------------------------------------------------------------
 				App.controller.DBoard.DBoardMain.do_lc_bind_event_div_Minimize();
 			}catch(e) {	

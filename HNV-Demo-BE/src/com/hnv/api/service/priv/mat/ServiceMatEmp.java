@@ -495,7 +495,7 @@ public class ServiceMatEmp implements IService {
 		if(typ02 != null) {
 			cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_02 , typ02));
 			
-			if(typ02 == 4 ) {
+			if(typ02 == 4 || typ02 == 3 ) {
 				cri = Restrictions.and(	cri, Restrictions.eq(ViAutUserDyn.ATT_I_TYPE_02 , typ02));
 			}
 		}
